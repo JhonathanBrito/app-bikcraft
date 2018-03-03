@@ -1,6 +1,9 @@
 // Dom7
 var $$ = Dom7;
 
+    $$('.logoff').hide();
+    $$('.login-screen-open').show();
+
 // Framework7 App main instance
 var app  = new Framework7({
   root: '#app', // App root element
@@ -57,13 +60,57 @@ var settingsView = app.views.create('#view-settings', {
 
 
 // Login Screen Demo
-$$('#my-login-screen .login-button').on('click', function () {
-  var username = $$('#my-login-screen [name="username"]').val();
+$$('#my-login-screen .SignUp').on('click', function () {
+  var username = $$('#my-login-screen [name="email"]').val();
   var password = $$('#my-login-screen [name="password"]').val();
-
-  // Close login screen
-  app.loginScreen.close('#my-login-screen');
 
   // Alert username and password
   app.dialog.alert('Username: ' + username + '<br>Password: ' + password);
+
+  firebase
+  .auth()
+  .createUserWithEmailAndPassword(username,password) //promisses
+  .then(function(){
+    app.dialog.alert('Bem vindo:' + username);
+    this.$$('.toolbar-inner').Text('Bem vindo:' + username);
+  })
+  .catch(function(error){
+    console.error(error.code)
+    console.error(error.message)
+    app.dialog.alert('Falha ao cadastrar, verifique o erro no console');
+    //this.$$('.toolbar-inner').Text('Bem Vindo: '+username);
+  })
+  // Close login screen
+  app.loginScreen.close('#my-login-screen');
+});
+
+$$('#my-login-screen .SignIn').on('click', function () {
+  var username = $$('#my-login-screen [name="email"]').val();
+  var password = $$('#my-login-screen [name="password"]').val();
+
+  // Alert username and password
+  //app.dialog.alert('Username: ' + username + '<br>Password: ' + password);
+
+  firebase
+  .auth()
+  .SignInWithEmailAndPassword(username,password) //promisses
+  .then(function(){
+    app.dialog.alert('Bem vindo:' + username);
+    this.$$('.toolbar-inner').Text('Bem vindo:' + username + 'vc esta logado');
+    $$('.logoff').show();
+    $$('.login-screen-open').hide();
+    $$('input#email').val('');
+    $$('input#password').val('');
+  })
+  .catch(function(error){
+    console.error(error.code)
+    console.error(error.message)
+    if (error.code =='auth/invalid-email'){
+      app.dialog.alert('E-mail invalido no seu formato!')
+    }
+    app.dialog.alert('Falha ao cadastrar, verifique o erro no console');
+    //this.$$('.toolbar-inner').Text('Bem Vindo: '+username);
+  })
+  // Close login screen
+  app.loginScreen.close('#my-login-screen');
 });
